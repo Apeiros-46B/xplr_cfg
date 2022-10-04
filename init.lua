@@ -265,7 +265,7 @@ xplr.config.general.selection_ui.suffix = ''
 -- Style for selected rows
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.selection_ui.style = { bg = colors.visual_bg }
+xplr.config.general.selection_ui.style = { bg = colors.visual_bg, fg = colors.purple, add_modifiers = { 'Italic' } }
 
 -- The string placed before item name for a selected row that gets the focus.
 --
@@ -280,7 +280,7 @@ xplr.config.general.focus_selection_ui.suffix = ''
 -- Style for a selected row that gets the focus.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.focus_selection_ui.style = { bg = colors.visual_bg, fg = colors.purple, add_modifiers = { 'Bold' } }
+xplr.config.general.focus_selection_ui.style = { bg = colors.visual_bg, fg = colors.blue, add_modifiers = { 'Bold', 'Italic' } }
 
 -- The shape of the separator for the Sort & filter panel.
 --
@@ -310,7 +310,7 @@ xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.forward.format
 -- Style of forward direction indicator in Sort & filter panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.forward.style = { fg = colors.green }
+xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.forward.style = { fg = colors.purple, add_modifiers = { 'Bold' } }
 
 -- The shape of the reverse direction indicator for sort identifiers in Sort & filter panel.
 --
@@ -320,7 +320,7 @@ xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.reverse.format
 -- Style of reverse direction indicator in Sort & filter panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.reverse.style = { fg = colors.purple }
+xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.reverse.style = { fg = colors.purple, add_modifiers = { 'Bold' } }
 
 -- The identifiers used to denote applied sorters in the Sort & filter panel.
 --
@@ -331,7 +331,7 @@ xplr.config.general.sort_and_filter_ui.sort_direction_identifiers.reverse.style 
 --     * format: nullable string
 --     * style: [Style](https://xplr.dev/en/style)
 xplr.config.general.sort_and_filter_ui.sorter_identifiers = {
-    ByExtension              = { format = ' ext ',      style = {} },
+    ByExtension              = { format = ' ext ',         style = {} },
 
     ByICanonicalAbsolutePath = { format = ' [ci]abs ',     style = {} },
     ByIRelativePath          = { format = ' [i]rel ',      style = {} },
@@ -432,7 +432,7 @@ xplr.config.general.panel_ui.default.title.format = nil
 -- The style for panel title by default.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.default.title.style = { fg = colors.gray1, add_modifiers = { 'Bold' } }
+xplr.config.general.panel_ui.default.title.style = { bg = colors.blue, fg = colors.gray1, add_modifiers = { 'Bold' } }
 
 -- Style of the panels by default.
 --
@@ -442,12 +442,7 @@ xplr.config.general.panel_ui.default.style = {}
 -- Defines where to show borders for the panels by default.
 --
 -- Type: nullable list of [Border](https://xplr.dev/en/borders#border)
-xplr.config.general.panel_ui.default.borders = {
-    'Top',
-    'Right',
-    'Bottom',
-    'Left',
-}
+xplr.config.general.panel_ui.default.borders = { 'Top', 'Bottom', 'Left', 'Right' }
 
 -- Type of the borders by default.
 --
@@ -580,7 +575,7 @@ xplr.config.general.panel_ui.selection.border_style = {}
 -- The content for the sort & filter panel title.
 --
 -- Type: nullable string
-xplr.config.general.panel_ui.sort_and_filter.title.format = ' SORT & FLTR '
+xplr.config.general.panel_ui.sort_and_filter.title.format = ' SORT+FLTR '
 
 -- Style of the sort & filter panel title.
 --
@@ -611,8 +606,10 @@ xplr.config.general.panel_ui.sort_and_filter.border_style = {}
 --
 -- Type: nullable list of [Node Sorter](https://xplr.dev/en/sorting#node-sorter-applicable)
 xplr.config.general.initial_sorting = {
-    { sorter = 'ByCanonicalIsDir', reverse = true },
-    { sorter = 'ByIRelativePath', reverse = false },
+    { sorter = 'ByCanonicalIsDir',     reverse = true  },
+    { sorter = 'ByCanonicalExtension', reverse = false },
+    { sorter = 'ByLastModified',       reverse = true  },
+    { sorter = 'ByIRelativePath',      reverse = false },
 }
 
 -- The name of one of the modes to use when xplr loads.
@@ -823,12 +820,13 @@ xplr.config.node_types.special = {}
 -- The default layout
 --
 -- Type: [Layout](https://xplr.dev/en/layout)
+
 xplr.config.layouts.builtin.default = {
     Horizontal = {
         config = {
             constraints = {
-                { Percentage = 70 },
-                { Percentage = 30 },
+                { Percentage = 73 },
+                { Percentage = 27 },
             },
         },
         splits = {
@@ -837,7 +835,7 @@ xplr.config.layouts.builtin.default = {
                     config = {
                         constraints = {
                             { Length = 3 },
-                            { Min = 1 },
+                            { Min    = 1 },
                             { Length = 3 },
                         },
                     },
@@ -873,8 +871,8 @@ xplr.config.layouts.builtin.no_help = {
     Horizontal = {
         config = {
             constraints = {
-                { Percentage = 70 },
-                { Percentage = 30 },
+                { Percentage = 73 },
+                { Percentage = 27 },
             },
         },
         splits = {
@@ -883,7 +881,7 @@ xplr.config.layouts.builtin.no_help = {
                     config = {
                         constraints = {
                             { Length = 3 },
-                            { Min = 1 },
+                            { Min    = 1 },
                             { Length = 3 },
                         },
                     },
@@ -906,8 +904,8 @@ xplr.config.layouts.builtin.no_selection = {
     Horizontal = {
         config = {
             constraints = {
-                { Percentage = 70 },
-                { Percentage = 30 },
+                { Percentage = 73 },
+                { Percentage = 27 },
             },
         },
         splits = {
@@ -916,7 +914,7 @@ xplr.config.layouts.builtin.no_selection = {
                     config = {
                         constraints = {
                             { Length = 3 },
-                            { Min = 1 },
+                            { Min    = 1 },
                             { Length = 3 },
                         },
                     },
@@ -940,7 +938,7 @@ xplr.config.layouts.builtin.no_help_no_selection = {
         config = {
             constraints = {
                 { Length = 3 },
-                { Min = 1 },
+                { Min    = 1 },
                 { Length = 3 },
             },
         },
