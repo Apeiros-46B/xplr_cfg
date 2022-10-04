@@ -7,8 +7,9 @@ local xplr = xplr -- The globally exposed configuration to be overridden.
 
 local colors = {
     -- grays
-    gray1  = { Rgb = { 0x2b, 0x33, 0x39 } },
-    gray2  = { Rgb = { 0x30, 0x3c, 0x42 } },
+    gray0  = { Rgb = { 0x2b, 0x33, 0x39 } },
+    gray1  = { Rgb = { 0x30, 0x3c, 0x42 } },
+    gray2  = { Rgb = { 0x32, 0x3c, 0x42 } },
     gray3  = { Rgb = { 0x38, 0x43, 0x48 } },
     gray4  = { Rgb = { 0x44, 0x50, 0x55 } },
     gray5  = { Rgb = { 0x60, 0x72, 0x79 } },
@@ -90,12 +91,12 @@ xplr.config.general.enforce_bounded_index_navigation = false
 -- This is the shape of the prompt for the input buffer.
 --
 -- Type: nullable string
-xplr.config.general.prompt.format = ' '
+xplr.config.general.prompt.format = '=> '
 
 -- This is the style of the prompt for the input buffer.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.prompt.style = {}
+xplr.config.general.prompt.style = { add_modifiers = { 'Bold' } }
 
 -- The string to indicate an information in logs.
 --
@@ -236,7 +237,7 @@ xplr.config.general.default_ui.suffix = ''
 -- The default style of each item for each row.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.default_ui.style = { bg = colors.gray2 }
+xplr.config.general.default_ui.style = { bg = colors.gray1 }
 
 -- The string placed before the item name for a focused row.
 --
@@ -300,7 +301,7 @@ xplr.config.general.sort_and_filter_ui.default_identifier.format = nil
 -- Style for the default identifier in Sort & filter panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.sort_and_filter_ui.default_identifier.style = { bg = colors.gray4 }
+xplr.config.general.sort_and_filter_ui.default_identifier.style = { bg = colors.gray3 }
 
 -- The shape of the forward direction indicator for sort identifiers in Sort & filter panel.
 --
@@ -432,7 +433,7 @@ xplr.config.general.panel_ui.default.title.format = nil
 -- The style for panel title by default.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.default.title.style = { bg = colors.blue, fg = colors.gray1, add_modifiers = { 'Bold' } }
+xplr.config.general.panel_ui.default.title.style = { bg = colors.blue, fg = colors.gray0, add_modifiers = { 'Bold' } }
 
 -- Style of the panels by default.
 --
@@ -452,7 +453,7 @@ xplr.config.general.panel_ui.default.border_type = 'Rounded'
 -- Style of the panel borders by default.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.default.border_style = { bg = colors.gray1, fg = colors.gray1 }
+xplr.config.general.panel_ui.default.border_style = { bg = colors.gray0, fg = colors.gray0 }
 
 -- The content for the table panel title.
 --
@@ -467,7 +468,7 @@ xplr.config.general.panel_ui.table.title.style = { bg = colors.blue }
 -- Style of the table panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.table.style = { bg = colors.gray2 }
+xplr.config.general.panel_ui.table.style = { bg = colors.gray1 }
 
 -- Defines where to show borders for the table panel.
 --
@@ -497,7 +498,7 @@ xplr.config.general.panel_ui.help_menu.title.style = { bg = colors.yellow }
 -- Style of the help menu panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.help_menu.style = { bg = colors.gray2 }
+xplr.config.general.panel_ui.help_menu.style = { bg = colors.gray1 }
 
 -- Defines where to show borders for the help menu panel.
 --
@@ -527,7 +528,7 @@ xplr.config.general.panel_ui.input_and_logs.title.style = { bg = colors.teal }
 -- Style of the input & logs panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.input_and_logs.style = { bg = colors.gray2 }
+xplr.config.general.panel_ui.input_and_logs.style = { bg = colors.gray1 }
 -- Defines where to show borders for the input & logs panel.
 --
 -- Type: nullable list of [Border](https://xplr.dev/en/borders#border)
@@ -556,7 +557,7 @@ xplr.config.general.panel_ui.selection.title.style = { bg = colors.purple }
 -- Style of the selection panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.selection.style = { bg = colors.gray2 }
+xplr.config.general.panel_ui.selection.style = { bg = colors.gray1 }
 -- Defines where to show borders for the selection panel.
 --
 -- Type: nullable list of [Border](https://xplr.dev/en/borders#border)
@@ -585,7 +586,7 @@ xplr.config.general.panel_ui.sort_and_filter.title.style = { bg = colors.green }
 -- Style of the sort & filter panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.sort_and_filter.style = { bg = colors.gray2 }
+xplr.config.general.panel_ui.sort_and_filter.style = { bg = colors.gray1 }
 
 -- Defines where to show borders for the sort & filter panel.
 --
@@ -664,7 +665,7 @@ xplr.config.general.global_key_bindings = {
 --
 -- Type: [Style](https://xplr.dev/en/style)
 xplr.config.node_types.directory.style = {
-    fg = 'Cyan',
+    fg = colors.blue,
     add_modifiers = { 'Bold' },
 }
 
