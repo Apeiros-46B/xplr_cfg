@@ -49,17 +49,43 @@ local colors = {
 -- {{{ Helper functions
 local no_color = os.getenv('NO_COLOR')
 
-local function bold(x)
+local color_reset = '\x1b[0m'
+
+local function apply_bold(s)
     if no_color == nil then
-        return '\x1b[1m' .. x .. '\x1b[0m'
+        return '\x1b[1m' .. s .. color_reset
     else
-        return x
+        return s
     end
 end
 
-local function color(s, col)
+local function apply_fg(s, fg)
     if no_color == nil then
-        return '\x1b[3' .. tostring(col) .. 'm' .. s .. '\x1b[0m'
+        local rgb = fg.Rgb
+        return '\x1b[38;2;' .. tostring(rgb[1]) .. ';' .. tostring(rgb[2]) .. ';' .. tostring(rgb[3]) ..'m' .. s .. color_reset
+    else
+        return s
+    end
+end
+
+local function apply_bg(s, bg)
+    if no_color == nil then
+        local rgb = bg.Rgb
+        return '\x1b[48;2;' .. tostring(rgb[1]) .. ';' .. tostring(rgb[2]) .. ';' .. tostring(rgb[3]) ..'m' .. s .. color_reset
+    else
+        return s
+    end
+end
+
+local function apply_cols(s, fg, bg)
+    if no_color == nil then
+        local rgb_fg = fg.Rgb
+        local rgb_bg = bg.Rgb
+
+        local new =  '\x1b[38;2;' .. tostring(rgb_fg[1]) .. ';' .. tostring(rgb_fg[2]) .. ';' .. tostring(rgb_fg[3]) ..'m'
+        new = new .. '\x1b[48;2;' .. tostring(rgb_bg[1]) .. ';' .. tostring(rgb_bg[2]) .. ';' .. tostring(rgb_bg[3]) ..'m'
+
+        return new .. s .. color_reset
     else
         return s
     end
@@ -191,9 +217,9 @@ xplr.config.general.table.header.height = 0
 -- * style: [Style](https://xplr.dev/en/style)
 xplr.config.general.table.row.cols = {
     { format = 'builtin.fmt_general_table_col_file',         style = {} },
-    { format = 'builtin.fmt_general_table_col_size_1',       style = {} },
+    { format = 'builtin.fmt_general_table_col_size_1',       style = { fg = colors.white } },
     { format = 'builtin.fmt_general_table_col_size_2',       style = {} },
-    { format = 'builtin.fmt_general_table_col_modified',     style = {} },
+    { format = 'builtin.fmt_general_table_col_modified',     style = { fg = colors.white } },
     { format = 'builtin.fmt_general_table_col_perms',        style = {} },
     { format = 'builtin.fmt_general_table_col_mime_essence', style = {} },
 }
@@ -2308,127 +2334,125 @@ end
 
 -- {{{ Column renderers
 -- {{{ 1st: File
-xplr.fn.builtin.fmt_general_table_col_file = function(m)
-    local r = m.tree .. m.prefix
+xplr.fn.builtin.fmt_general_table_col_file = function(node)
+    local s = node.prefix
 
-    if m.meta.icon == nil then
-        r = r .. ''
+    if node.meta.icon == nil then
+        s = s .. ''
     else
-        r = r .. m.meta.icon .. ' '
+        s = s .. node.meta.icon .. ' '
     end
 
-    r = r .. m.relative_path
+    s = s .. node.relative_path
 
-    if m.is_dir then
-        r = r .. '/'
+    if node.is_dir then
+        s = s .. '/'
     end
 
-    r = r .. m.suffix .. ' '
+    s = s .. node.suffix .. ' '
 
-    if m.is_symlink then
-        r = r .. '-> '
-
-        if m.is_broken then
-            r = r .. '×'
+    if node.is_symlink then
+        if node.is_broken then
+            s = s .. '×'
         else
-            r = r .. m.symlink.absolute_path
+            s = s .. '-> ' .. node.symlink.absolute_path
 
-            if m.symlink.is_dir then
-                r = r .. '/'
+            if node.symlink.is_dir then
+                s = s .. '/'
             end
         end
     end
 
-    return r
+    return s
 end
 -- }}}
 
 -- {{{ 2nd~1: Size (size)
-xplr.fn.builtin.fmt_general_table_col_size_1 = function(m)
-    return m.is_dir and '' or string.lower(m.human_size):gsub('%s%a+', '')
+xplr.fn.builtin.fmt_general_table_col_size_1 = function(node)
+    return node.is_dir and '' or apply_fg(string.lower(node.human_size):gsub('%s%a+', ''), colors.white)
 end
 -- }}}
 
 -- {{{ 2nd~2: Size (unit)
-xplr.fn.builtin.fmt_general_table_col_size_2 = function(m)
-    if m.is_dir then
+xplr.fn.builtin.fmt_general_table_col_size_2 = function(node)
+    if node.is_dir then
         return ''
     end
 
-    local unit = string.lower(m.human_size):gsub('%d+%s', ''):gsub('%d+%.', '')
+    local unit = string.lower(node.human_size):gsub('%d+%s', ''):gsub('%d+%.', '')
     if string.len(unit) == 2 then unit = string.sub(unit, 1, 1) end
 
     if unit == 'b' then
-        unit = color(unit, 4)
+        unit = apply_fg(unit, colors.blue)
     elseif unit == 'k' then
-        unit = color(unit, 6)
+        unit = apply_fg(unit, colors.green)
     elseif unit == 'm' then
-        unit = color(unit, 2)
+        unit = apply_fg(unit, colors.yellow)
     else
-        unit = color(unit, 1)
+        unit = apply_fg(unit, colors.orange)
     end
 
-    return bold(unit)
+    return apply_bold(unit)
 end
 -- }}}
 
 -- {{{ 3rd: Modification date
-xplr.fn.builtin.fmt_general_table_col_modified = function(m)
-    return tostring(os.date('%d/%m/%Y %R', m.last_modified / 1000000000))
+xplr.fn.builtin.fmt_general_table_col_modified = function(node)
+    return apply_fg(tostring(os.date('%d/%m/%Y %R', node.last_modified / 1000000000)), colors.gray8)
 end
 -- }}}
 
 -- {{{ 4th: Permissions
-xplr.fn.builtin.fmt_general_table_col_perms = function(m)
-    local function bit(x, col, cond)
+xplr.fn.builtin.fmt_general_table_col_perms = function(node)
+    local function bit(x, fg, cond)
         if cond then
-            return color(x,   col)
+            return apply_fg(x,   fg)
         else
-            return color('-', col)
+            return apply_fg('-', fg)
         end
     end
 
-    local p = m.permissions
+    local p = node.permissions
 
     local r = ''
 
-    r = r .. bit('r', 2, p.user_read)
-    r = r .. bit('w', 3, p.user_write)
+    r = r .. bit('r', colors.green, p.user_read)
+    r = r .. bit('w', colors.yellow, p.user_write)
 
     if p.user_execute == false and p.setuid == false then
-        r = r .. bit('-', 1, p.user_execute)
+        r = r .. bit('-', colors.red, p.user_execute)
     elseif p.user_execute == true and p.setuid == false then
-        r = r .. bit('x', 1, p.user_execute)
+        r = r .. bit('x', colors.red, p.user_execute)
     elseif p.user_execute == false and p.setuid == true then
-        r = r .. bit('S', 1, p.user_execute)
+        r = r .. bit('S', colors.red, p.user_execute)
     else
-        r = r .. bit('s', 1, p.user_execute)
+        r = r .. bit('s', colors.red, p.user_execute)
     end
 
-    r = r .. bit('r', 2, p.group_read)
-    r = r .. bit('w', 3, p.group_write)
+    r = r .. bit('r', colors.green, p.group_read)
+    r = r .. bit('w', colors.yellow, p.group_write)
 
     if p.group_execute == false and p.setuid == false then
-        r = r .. bit('-', 1, p.group_execute)
+        r = r .. bit('-', colors.red, p.group_execute)
     elseif p.group_execute == true and p.setuid == false then
-        r = r .. bit('x', 1, p.group_execute)
+        r = r .. bit('x', colors.red, p.group_execute)
     elseif p.group_execute == false and p.setuid == true then
-        r = r .. bit('S', 1, p.group_execute)
+        r = r .. bit('S', colors.red, p.group_execute)
     else
-        r = r .. bit('s', 1, p.group_execute)
+        r = r .. bit('s', colors.red, p.group_execute)
     end
 
-    r = r .. bit('r', 2, p.other_read)
-    r = r .. bit('w', 3, p.other_write)
+    r = r .. bit('r', colors.green, p.other_read)
+    r = r .. bit('w', colors.yellow, p.other_write)
 
     if p.other_execute == false and p.setuid == false then
-        r = r .. bit('-', 1, p.other_execute)
+        r = r .. bit('-', colors.red, p.other_execute)
     elseif p.other_execute == true and p.setuid == false then
-        r = r .. bit('x', 1, p.other_execute)
+        r = r .. bit('x', colors.red, p.other_execute)
     elseif p.other_execute == false and p.setuid == true then
-        r = r .. bit('T', 1, p.other_execute)
+        r = r .. bit('T', colors.red, p.other_execute)
     else
-        r = r .. bit('t', 1, p.other_execute)
+        r = r .. bit('t', colors.red, p.other_execute)
     end
 
     return r
@@ -2436,17 +2460,17 @@ end
 -- }}}
 
 -- {{{ 5th: MIME essence
-xplr.fn.builtin.fmt_general_table_col_mime_essence = function(m)
-    if m.is_dir or m.mime_essence == '' then
+xplr.fn.builtin.fmt_general_table_col_mime_essence = function(node)
+    if node.is_dir or node.mime_essence == '' then
         return ''
     end
 
-    local mime = m.mime_essence
+    local mime = node.mime_essence
 
     local l = string.match(mime, '.*/'):gsub('/', '')
     local r = string.match(mime, '/.*'):gsub('/', '')
 
-    return bold(color(l, 3)) .. bold(color('/', 4)) .. r
+    return apply_bold(apply_fg(l, colors.orange)) .. apply_bold(apply_fg('/', colors.red)) .. r
 end
 -- }}}
 -- }}}
@@ -2517,36 +2541,29 @@ require('xpm').setup({
 
 -- {{{ Post-plugin config
 -- {{{ Node types
-xplr.config.node_types.directory.style = {
-    fg = colors.blue,
-    add_modifiers = { 'Bold' },
-}
-
-xplr.config.node_types.symlink.style = {
-    fg = colors.teal,
-    add_modifiers = { 'Bold' },
-}
+xplr.config.node_types.directory.style = { fg = colors.blue, add_modifiers = { 'Bold' } }
+xplr.config.node_types.symlink.style   = { fg = colors.teal, add_modifiers = { 'Bold' } }
 
 xplr.config.node_types.mime_essence = {
+    application = {
+        zip   = { meta = { icon = apply_fg('', colors.red   ) } },
+    },
     audio = {
-        ['*'] = { meta = { icon = color('', 3) } },
+        ['*'] = { meta = { icon = apply_fg('', colors.yellow) } },
     },
     video = {
-        ['*'] = { meta = { icon = color('ﳜ', 5) } },
+        ['*'] = { meta = { icon = apply_fg('ﳜ', colors.purple) } },
     },
     image = {
-        ['*'] = { meta = { icon = color('', 5) } },
-    },
-    application = {
-        -- application/zip
-        zip = { meta = { icon = color('', 1) } },
+        ['*'] = { meta = { icon = apply_fg('', colors.purple) } },
     },
     text = {
-        ['*'] = { meta = { icon = '' } },
+        ['*'] = { meta = { icon = apply_fg('', colors.blue  ) } },
     },
 }
 
-xplr.config.node_types.extension = {}
+-- xplr.config.node_types.extension = {}
+xplr.config.node_types.extension.norg = { meta = { icon = apply_fg('', colors.teal) } }
 
 xplr.config.node_types.special['code' ] = { meta = { icon = '' }, style = { fg = colors.blue } }
 xplr.config.node_types.special['desk' ] = { meta = { icon = '' }, style = { fg = colors.blue } }
