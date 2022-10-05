@@ -1,11 +1,9 @@
--- Xplr configuration
--- TODO:
---> [ ] Bring back that indexes thing from the default config except put it on the right and make it look nicer
---> [ ] Improve icons, color only the file extensions for each file type
---> [ ] Panel that shows full info of the current file that might not be on screen (e.g. MIME type, full name, owner username, etc)
---> [ ] Make more layouts that might be useful
---> [ ] Clock panel maybe
---> [ ] Fix operations such as copying, moving, opening in editor, etc. (rn it doesn't expand shell variables idk why)
+-- xplr configuration
+--> TODO:
+---- [-] Improve icons, color only the file extensions for each file type
+---- [ ] Panel that shows full info of the current file that might not be on screen (e.g. MIME type, full name, owner username, etc)
+---- [ ] Make more layouts that might be useful
+---- [ ] Fix operations such as copying, moving, opening in editor, etc. (rn it doesn't expand shell variables idk why)
 
 -- {{{ Init
 ---@diagnostic disable
@@ -92,7 +90,7 @@ local function apply_cols(s, fg, bg)
 end
 -- }}}
 
--- {{{ Base config
+-- {{{ Normal config
 -- {{{ General config
 -- ### General Configuration --------------------------------------------------
 --
@@ -217,9 +215,9 @@ xplr.config.general.table.header.height = 0
 -- * style: [Style](https://xplr.dev/en/style)
 xplr.config.general.table.row.cols = {
     { format = 'builtin.fmt_general_table_col_file',         style = {} },
-    { format = 'builtin.fmt_general_table_col_size_1',       style = { fg = colors.white } },
+    { format = 'builtin.fmt_general_table_col_size_1',       style = {} },
     { format = 'builtin.fmt_general_table_col_size_2',       style = {} },
-    { format = 'builtin.fmt_general_table_col_modified',     style = { fg = colors.white } },
+    { format = 'builtin.fmt_general_table_col_modified',     style = {} },
     { format = 'builtin.fmt_general_table_col_perms',        style = {} },
     { format = 'builtin.fmt_general_table_col_mime_essence', style = {} },
 }
@@ -260,12 +258,12 @@ xplr.config.general.table.col_spacing = 1
 --
 -- Type: nullable list of [Constraint](https://xplr.dev/en/layouts#constraint)
 xplr.config.general.table.col_widths = {
-    { Length     = 32 }, -- 1st: file name & icon
-    { Length     =  6 }, -- 2~1: file size (size component)
-    { Length     =  3 }, -- 2~2: file size (unit component)
-    { Length     = 18 }, -- 3th: modification date
-    { Length     = 11 }, -- 4nd: file permissions
-    { Length     = 20 }, -- 5th: mime essence
+    { Length     = 32 }, -- 1st: File name & icon
+    { Length     =  6 }, -- 2~1: File size (size component)
+    { Length     =  3 }, -- 2~2: File size (unit component)
+    { Length     = 18 }, -- 3th: Modification date
+    { Length     = 11 }, -- 4nd: File permissions
+    { Length     = 20 }, -- 5th: File type/MIME essence
 }
 
 -- The content that is placed before the item name for each row by default.
@@ -2459,7 +2457,7 @@ xplr.fn.builtin.fmt_general_table_col_perms = function(node)
 end
 -- }}}
 
--- {{{ 5th: MIME essence
+-- {{{ 5th: File type/MIME essence
 xplr.fn.builtin.fmt_general_table_col_mime_essence = function(node)
     if node.is_dir or node.mime_essence == '' then
         return ''
@@ -2547,6 +2545,7 @@ xplr.config.node_types.symlink.style   = { fg = colors.teal, add_modifiers = { '
 xplr.config.node_types.mime_essence = {
     application = {
         zip   = { meta = { icon = apply_fg('', colors.red   ) } },
+        pdf   = { meta = { icon = apply_fg('', colors.red   ) } },
     },
     audio = {
         ['*'] = { meta = { icon = apply_fg('', colors.yellow) } },
