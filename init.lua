@@ -1,4 +1,13 @@
--- {{{ init
+-- Xplr configuration
+-- TODO:
+--> [ ] Bring back that indexes thing from the default config except put it on the right and make it look nicer
+--> [ ] Improve icons, color only the file extensions for each file type
+--> [ ] Panel that shows full info of the current file that might not be on screen (e.g. MIME type, full name, owner username, etc)
+--> [ ] Make more layouts that might be useful
+--> [ ] Clock panel maybe
+--> [ ] Fix operations such as copying, moving, opening in editor, etc. (rn it doesn't expand shell variables idk why)
+
+-- {{{ Init
 ---@diagnostic disable
 version = '0.19.3' -- Version number
 
@@ -7,40 +16,58 @@ local xplr = xplr -- The globally exposed configuration to be overridden.
 
 local colors = {
     -- grays
-    gray0  = { Rgb = { 0x2b, 0x33, 0x39 } },
-    gray1  = { Rgb = { 0x30, 0x3c, 0x42 } },
-    gray2  = { Rgb = { 0x32, 0x3c, 0x42 } },
-    gray3  = { Rgb = { 0x38, 0x43, 0x48 } },
-    gray4  = { Rgb = { 0x44, 0x50, 0x55 } },
-    gray5  = { Rgb = { 0x60, 0x72, 0x79 } },
-    gray6  = { Rgb = { 0x7a, 0x84, 0x87 } },
-    gray7  = { Rgb = { 0x85, 0x92, 0x89 } },
-    gray8  = { Rgb = { 0x9d, 0xa9, 0xa0 } },
-
+    gray1  = { Rgb = { 0x2b, 0x33, 0x39 } }, -- #2b3339
+    gray2  = { Rgb = { 0x30, 0x3c, 0x42 } }, -- #303c42
+    gray3  = { Rgb = { 0x38, 0x43, 0x48 } }, -- #384348
+    gray4  = { Rgb = { 0x44, 0x50, 0x55 } }, -- #445055
+    gray5  = { Rgb = { 0x60, 0x72, 0x79 } }, -- #607279
+    gray6  = { Rgb = { 0x7a, 0x84, 0x87 } }, -- #7a8487
+    gray7  = { Rgb = { 0x85, 0x92, 0x89 } }, -- #859289
+    gray8  = { Rgb = { 0x9d, 0xa9, 0xa0 } }, -- #9da9a0
 
     -- fg
-    white  = { Rgb = { 0xd3, 0xc6, 0xaa } },
+    white  = { Rgb = { 0xd3, 0xc6, 0xaa } }, -- #d3c6aa
 
     -- rainbow
-    red    = { Rgb = { 0xe6, 0x7e, 0x80 } },
-    orange = { Rgb = { 0xe6, 0x98, 0x75 } },
-    yellow = { Rgb = { 0xdd, 0xbc, 0x7f } },
-    green  = { Rgb = { 0xa7, 0xc0, 0x80 } },
-    teal   = { Rgb = { 0x83, 0xc0, 0x92 } },
-    blue   = { Rgb = { 0x7f, 0xbb, 0xb3 } },
-    purple = { Rgb = { 0xd6, 0x99, 0xb6 } },
+    red    = { Rgb = { 0xe6, 0x7e, 0x80 } }, -- #e67e80
+    orange = { Rgb = { 0xe6, 0x98, 0x75 } }, -- #e69875
+    yellow = { Rgb = { 0xdd, 0xbc, 0x7f } }, -- #ddbc7f
+    green  = { Rgb = { 0xa7, 0xc0, 0x80 } }, -- #a7c080
+    teal   = { Rgb = { 0x83, 0xc0, 0x92 } }, -- #83c092
+    blue   = { Rgb = { 0x7f, 0xbb, 0xb3 } }, -- #7fbbb3
+    purple = { Rgb = { 0xd6, 0x99, 0xb6 } }, -- #d699b6
 
-    -- misc
-    visual_bg = { Rgb = { 0x50, 0x39, 0x46 } },
-    diff_del  = { Rgb = { 0x4e, 0x3e, 0x43 } },
-    diff_add  = { Rgb = { 0x40, 0x4d, 0x44 } },
-    diff_mod  = { Rgb = { 0x39, 0x4f, 0x5a } },
+    -- non-gray bg
+    visual_bg = { Rgb = { 0x50, 0x39, 0x46 } }, -- #503946
+    diff_del  = { Rgb = { 0x4e, 0x3e, 0x43 } }, -- #4e3e43
+    diff_add  = { Rgb = { 0x40, 0x4d, 0x44 } }, -- #404d44
+    diff_mod  = { Rgb = { 0x39, 0x4f, 0x5a } }, -- #394f5a
 }
 
 -- }}}
 
--- {{{ base config
--- {{{ general config
+-- {{{ Helper functions
+local no_color = os.getenv('NO_COLOR')
+
+local function bold(x)
+    if no_color == nil then
+        return '\x1b[1m' .. x .. '\x1b[0m'
+    else
+        return x
+    end
+end
+
+local function color(s, col)
+    if no_color == nil then
+        return '\x1b[3' .. tostring(col) .. 'm' .. s .. '\x1b[0m'
+    else
+        return s
+    end
+end
+-- }}}
+
+-- {{{ Base config
+-- {{{ General config
 -- ### General Configuration --------------------------------------------------
 --
 -- The general configuration properties are grouped together in
@@ -163,22 +190,12 @@ xplr.config.general.table.header.height = 0
 -- * format: nullable string
 -- * style: [Style](https://xplr.dev/en/style)
 xplr.config.general.table.row.cols = {
-    {
-        format = 'builtin.fmt_general_table_row_cols_1',
-        style = {},
-    },
-    {
-        format = 'builtin.fmt_general_table_row_cols_2',
-        style = {},
-    },
-    {
-        format = 'builtin.fmt_general_table_row_cols_3',
-        style = {},
-    },
-    {
-        format = 'builtin.fmt_general_table_row_cols_4',
-        style = {},
-    },
+    { format = 'builtin.fmt_general_table_col_file',         style = {} },
+    { format = 'builtin.fmt_general_table_col_size_1',       style = {} },
+    { format = 'builtin.fmt_general_table_col_size_2',       style = {} },
+    { format = 'builtin.fmt_general_table_col_modified',     style = {} },
+    { format = 'builtin.fmt_general_table_col_perms',        style = {} },
+    { format = 'builtin.fmt_general_table_col_mime_essence', style = {} },
 }
 
 -- Default style of the table.
@@ -217,11 +234,12 @@ xplr.config.general.table.col_spacing = 1
 --
 -- Type: nullable list of [Constraint](https://xplr.dev/en/layouts#constraint)
 xplr.config.general.table.col_widths = {
-    { Length     = 58 },
-    { Length     = 10 },
-    { Percentage = 10 },
-    { Length     = 20 },
-    -- { Percentage = 20 },
+    { Length     = 32 }, -- 1st: file name & icon
+    { Length     =  6 }, -- 2~1: file size (size component)
+    { Length     =  3 }, -- 2~2: file size (unit component)
+    { Length     = 18 }, -- 3th: modification date
+    { Length     = 11 }, -- 4nd: file permissions
+    { Length     = 20 }, -- 5th: mime essence
 }
 
 -- The content that is placed before the item name for each row by default.
@@ -237,7 +255,7 @@ xplr.config.general.default_ui.suffix = ''
 -- The default style of each item for each row.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.default_ui.style = { bg = colors.gray1 }
+xplr.config.general.default_ui.style = { bg = colors.gray2 }
 
 -- The string placed before the item name for a focused row.
 --
@@ -251,7 +269,7 @@ xplr.config.general.focus_ui.suffix = ''
 
 -- Style for focused item.
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.focus_ui.style = { bg = colors.diff_mod, add_modifiers = { 'Bold' } }
+xplr.config.general.focus_ui.style = { bg = colors.gray4, add_modifiers = { 'Bold' } }
 
 -- The string placed before the item name for a selected row.
 --
@@ -433,7 +451,7 @@ xplr.config.general.panel_ui.default.title.format = nil
 -- The style for panel title by default.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.default.title.style = { bg = colors.blue, fg = colors.gray0, add_modifiers = { 'Bold' } }
+xplr.config.general.panel_ui.default.title.style = { bg = colors.blue, fg = colors.gray1, add_modifiers = { 'Bold' } }
 
 -- Style of the panels by default.
 --
@@ -453,7 +471,7 @@ xplr.config.general.panel_ui.default.border_type = 'Rounded'
 -- Style of the panel borders by default.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.default.border_style = { bg = colors.gray0, fg = colors.gray0 }
+xplr.config.general.panel_ui.default.border_style = { bg = colors.gray1, fg = colors.gray1 }
 
 -- The content for the table panel title.
 --
@@ -468,7 +486,7 @@ xplr.config.general.panel_ui.table.title.style = { bg = colors.blue }
 -- Style of the table panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.table.style = { bg = colors.gray1 }
+xplr.config.general.panel_ui.table.style = { bg = colors.gray2 }
 
 -- Defines where to show borders for the table panel.
 --
@@ -498,7 +516,7 @@ xplr.config.general.panel_ui.help_menu.title.style = { bg = colors.yellow }
 -- Style of the help menu panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.help_menu.style = { bg = colors.gray1 }
+xplr.config.general.panel_ui.help_menu.style = { bg = colors.gray2 }
 
 -- Defines where to show borders for the help menu panel.
 --
@@ -528,7 +546,7 @@ xplr.config.general.panel_ui.input_and_logs.title.style = { bg = colors.teal }
 -- Style of the input & logs panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.input_and_logs.style = { bg = colors.gray1 }
+xplr.config.general.panel_ui.input_and_logs.style = { bg = colors.gray2 }
 -- Defines where to show borders for the input & logs panel.
 --
 -- Type: nullable list of [Border](https://xplr.dev/en/borders#border)
@@ -557,7 +575,7 @@ xplr.config.general.panel_ui.selection.title.style = { bg = colors.purple }
 -- Style of the selection panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.selection.style = { bg = colors.gray1 }
+xplr.config.general.panel_ui.selection.style = { bg = colors.gray2 }
 -- Defines where to show borders for the selection panel.
 --
 -- Type: nullable list of [Border](https://xplr.dev/en/borders#border)
@@ -586,7 +604,7 @@ xplr.config.general.panel_ui.sort_and_filter.title.style = { bg = colors.green }
 -- Style of the sort & filter panel.
 --
 -- Type: [Style](https://xplr.dev/en/style)
-xplr.config.general.panel_ui.sort_and_filter.style = { bg = colors.gray1 }
+xplr.config.general.panel_ui.sort_and_filter.style = { bg = colors.gray2 }
 
 -- Defines where to show borders for the sort & filter panel.
 --
@@ -608,7 +626,6 @@ xplr.config.general.panel_ui.sort_and_filter.border_style = {}
 -- Type: nullable list of [Node Sorter](https://xplr.dev/en/sorting#node-sorter-applicable)
 xplr.config.general.initial_sorting = {
     { sorter = 'ByCanonicalIsDir',     reverse = true  },
-    { sorter = 'ByCanonicalExtension', reverse = false },
     { sorter = 'ByLastModified',       reverse = true  },
     { sorter = 'ByIRelativePath',      reverse = false },
 }
@@ -649,325 +666,7 @@ xplr.config.general.global_key_bindings = {
 }
 -- }}}
 
--- {{{ node types
--- ### Node Types -------------------------------------------------------------
---
--- This section defines how to deal with different kinds of nodes (files,
--- directories, symlinks etc.) based on their properties.
---
--- One node can fall into multiple categories. For example, a node can have the
--- *extension* `md`, and also be a *file*. In that case, the properties from
--- the more    specific category i.e. *extension* will be used.
---
--- This can be configured using the `xplr.config.node_types` Lua API.
-
--- The style for the directory nodes
---
--- Type: [Style](https://xplr.dev/en/style)
-xplr.config.node_types.directory.style = {
-    fg = colors.blue,
-    add_modifiers = { 'Bold' },
-}
-
--- Metadata for the directory nodes.
--- You can set as many metadata as you want.
---
--- Type: nullable string
---
--- Example:
---
--- ```lua
--- xplr.config.node_types.directory.meta.foo = 'foo'
--- xplr.config.node_types.directory.meta.bar = 'bar'
--- ```
-xplr.config.node_types.directory.meta.icon = 'ð'
-
--- The style for the file nodes.
---
--- Type: [Style](https://xplr.dev/en/style)
-xplr.config.node_types.file.style = {}
-
--- Metadata for the file nodes.
--- You can set as many metadata as you want.
---
--- Type: nullable string
---
--- Example:
---
--- ```lua
--- xplr.config.node_types.file.meta.foo = 'foo'
--- xplr.config.node_types.file.meta.bar = 'bar'
--- ```
-xplr.config.node_types.file.meta.icon = 'ƒ'
-
--- The style for the symlink nodes.
---
--- Type: [Style](https://xplr.dev/en/style)
-xplr.config.node_types.symlink.style = {
-    fg = 'Magenta',
-    add_modifiers = { 'Italic' },
-}
-
--- Metadata for the symlink nodes.
--- You can set as many metadata as you want.
---
--- Type: nullable string
---
--- Example:
---
--- ```lua
--- xplr.config.node_types.symlink.meta.foo = 'foo'
--- xplr.config.node_types.symlink.meta.bar = 'bar'
--- ```
-xplr.config.node_types.symlink.meta.icon = '§'
-
--- Metadata and style based on mime types.
--- It is possible to use the wildcard `*` to match all mime sub types. It will
--- be overwritten by the more specific sub types that are defined.
---
--- Type: mapping of the following key-value pairs:
---
--- * key: string
--- * value:
---     * key: string
---     * value: [Node Type](https://xplr.dev/en/node-type)
---
--- Example:
---
--- ```lua
--- xplr.config.node_types.mime_essence = {
---     application = {
---         -- application/*
---         ['*'] = { meta = { icon = 'a' } }
---
---         -- application/pdf
---         pdf = { meta = { icon = '' }, style = { fg = 'Blue' } },
---
---         -- application/zip
---         zip = { meta = { icon = ''} },
---     },
--- }
--- ```
-xplr.config.node_types.mime_essence = {}
-
--- Metadata and style based on extension.
---
--- Type: mapping of the following key-value pairs:
---
--- * key: string
--- * value: [Node Type](https://xplr.dev/en/node-type)
---
--- Example:
---
--- ```lua
--- xplr.config.node_types.extension.md = { meta = { icon = '' }, style = { fg = 'Blue' } }
--- xplr.config.node_types.extension.rs = { meta = { icon = '🦀' } }
--- ```
-xplr.config.node_types.extension = {}
-
--- Metadata and style based on special file names.
---
--- Type: mapping of the following key-value pairs:
---
--- * key: string
--- * value: [Node Type](https://xplr.dev/en/node-type)
---
--- Example:
---
--- ```lua
--- xplr.config.node_types.special['Cargo.toml'] = { meta = { icon = '' } }
--- xplr.config.node_types.special['Downloads'] = { meta = { icon = '' }, style = { fg = 'Blue' } }
--- ```
-xplr.config.node_types.special = {}
--- }}}
-
--- {{{ layouts
--- ### Layouts ----------------------------------------------------------------
---
--- xplr layouts define the structure of the UI, i.e. how many panel we see,
--- placement and size of the panels, how they look etc.
---
--- This is configuration exposed via the `xplr.config.layouts` API.
---
--- `xplr.config.layouts.builtin` contain some built-in panels which can be
--- overridden, but you can't add or remove panels in it.
---
--- You can add new panels in `xplr.config.layouts.custom`.
---
--- ##### Example: Defining Custom Layout
---
--- ![demo](https://s6.gifyu.com/images/layout.png)
---
--- ```lua
--- xplr.config.layouts.builtin.default = {
---     Horizontal = {
---         config = {
---             margin = 1,
---             horizontal_margin = 2,
---             vertical_margin = 3,
---             constraints = {
---                 { Percentage = 50 },
---                 { Percentage = 50 },
---             }
---         },
---         splits = {
---             'Table',
---             'HelpMenu',
---         }
---     }
--- }
--- ```
-
--- The default layout
---
--- Type: [Layout](https://xplr.dev/en/layout)
-
-xplr.config.layouts.builtin.default = {
-    Horizontal = {
-        config = {
-            constraints = {
-                { Percentage = 73 },
-                { Percentage = 27 },
-            },
-        },
-        splits = {
-            {
-                Vertical = {
-                    config = {
-                        constraints = {
-                            { Length = 3 },
-                            { Min    = 1 },
-                            { Length = 3 },
-                        },
-                    },
-                    splits = {
-                        'SortAndFilter',
-                        'Table',
-                        'InputAndLogs',
-                    },
-                },
-            },
-            {
-                Vertical = {
-                    config = {
-                        constraints = {
-                            { Percentage = 30 },
-                            { Percentage = 70 },
-                        },
-                    },
-                    splits = {
-                        'Selection',
-                        'HelpMenu',
-                    },
-                },
-            },
-        },
-    },
-}
-
--- The layout without help menu
---
--- Type: [Layout](https://xplr.dev/en/layout)
-xplr.config.layouts.builtin.no_help = {
-    Horizontal = {
-        config = {
-            constraints = {
-                { Percentage = 73 },
-                { Percentage = 27 },
-            },
-        },
-        splits = {
-            {
-                Vertical = {
-                    config = {
-                        constraints = {
-                            { Length = 3 },
-                            { Min    = 1 },
-                            { Length = 3 },
-                        },
-                    },
-                    splits = {
-                        'SortAndFilter',
-                        'Table',
-                        'InputAndLogs',
-                    },
-                },
-            },
-            'Selection',
-        },
-    },
-}
-
--- The layout without selection panel
---
--- Type: [Layout](https://xplr.dev/en/layout)
-xplr.config.layouts.builtin.no_selection = {
-    Horizontal = {
-        config = {
-            constraints = {
-                { Percentage = 73 },
-                { Percentage = 27 },
-            },
-        },
-        splits = {
-            {
-                Vertical = {
-                    config = {
-                        constraints = {
-                            { Length = 3 },
-                            { Min    = 1 },
-                            { Length = 3 },
-                        },
-                    },
-                    splits = {
-                        'SortAndFilter',
-                        'Table',
-                        'InputAndLogs',
-                    },
-                },
-            },
-            'HelpMenu',
-        },
-    },
-}
-
--- The layout without help menu and selection panel
---
--- Type: [Layout](https://xplr.dev/en/layout)
-xplr.config.layouts.builtin.no_help_no_selection = {
-    Vertical = {
-        config = {
-            constraints = {
-                { Length = 3 },
-                { Min    = 1 },
-                { Length = 3 },
-            },
-        },
-        splits = {
-            'SortAndFilter',
-            'Table',
-            'InputAndLogs',
-        },
-    },
-}
-
--- This is where you can define custom layouts
---
--- Type: mapping of the following key-value pairs:
---
--- * key: string
--- * value: [Layout](https://xplr.dev/en/layout)
---
--- Example:
---
--- ```lua
--- xplr.config.layouts.custom.example = 'Nothing' -- Show a blank screen
--- xplr.config.general.initial_layout = 'example' -- Load the example layout
--- ```
-xplr.config.layouts.custom = {}
--- }}}
-
--- {{{ modes
+-- {{{ Modes
 -- ### Modes ------------------------------------------------------------------
 --
 -- xplr is a modal file explorer. That means the users switch between different
@@ -2353,7 +2052,193 @@ xplr.config.modes.builtin.switch_layout = {
 xplr.config.modes.custom = {}
 -- }}}
 
--- {{{ fn
+-- {{{ Layouts
+-- ### Layouts ----------------------------------------------------------------
+--
+-- xplr layouts define the structure of the UI, i.e. how many panel we see,
+-- placement and size of the panels, how they look etc.
+--
+-- This is configuration exposed via the `xplr.config.layouts` API.
+--
+-- `xplr.config.layouts.builtin` contain some built-in panels which can be
+-- overridden, but you can't add or remove panels in it.
+--
+-- You can add new panels in `xplr.config.layouts.custom`.
+--
+-- ##### Example: Defining Custom Layout
+--
+-- ![demo](https://s6.gifyu.com/images/layout.png)
+--
+-- ```lua
+-- xplr.config.layouts.builtin.default = {
+--     Horizontal = {
+--         config = {
+--             margin = 1,
+--             horizontal_margin = 2,
+--             vertical_margin = 3,
+--             constraints = {
+--                 { Percentage = 50 },
+--                 { Percentage = 50 },
+--             }
+--         },
+--         splits = {
+--             'Table',
+--             'HelpMenu',
+--         }
+--     }
+-- }
+-- ```
+
+-- The default layout
+--
+-- Type: [Layout](https://xplr.dev/en/layout)
+
+xplr.config.layouts.builtin.default = {
+    Horizontal = {
+        config = {
+            constraints = {
+                { Percentage = 73 },
+                { Percentage = 27 },
+            },
+        },
+        splits = {
+            {
+                Vertical = {
+                    config = {
+                        constraints = {
+                            { Length = 3 },
+                            { Min    = 1 },
+                            { Length = 3 },
+                        },
+                    },
+                    splits = {
+                        'SortAndFilter',
+                        'Table',
+                        'InputAndLogs',
+                    },
+                },
+            },
+            {
+                Vertical = {
+                    config = {
+                        constraints = {
+                            { Percentage = 30 },
+                            { Percentage = 70 },
+                        },
+                    },
+                    splits = {
+                        'Selection',
+                        'HelpMenu',
+                    },
+                },
+            },
+        },
+    },
+}
+
+-- The layout without help menu
+--
+-- Type: [Layout](https://xplr.dev/en/layout)
+xplr.config.layouts.builtin.no_help = {
+    Horizontal = {
+        config = {
+            constraints = {
+                { Percentage = 73 },
+                { Percentage = 27 },
+            },
+        },
+        splits = {
+            {
+                Vertical = {
+                    config = {
+                        constraints = {
+                            { Length = 3 },
+                            { Min    = 1 },
+                            { Length = 3 },
+                        },
+                    },
+                    splits = {
+                        'SortAndFilter',
+                        'Table',
+                        'InputAndLogs',
+                    },
+                },
+            },
+            'Selection',
+        },
+    },
+}
+
+-- The layout without selection panel
+--
+-- Type: [Layout](https://xplr.dev/en/layout)
+xplr.config.layouts.builtin.no_selection = {
+    Horizontal = {
+        config = {
+            constraints = {
+                { Percentage = 73 },
+                { Percentage = 27 },
+            },
+        },
+        splits = {
+            {
+                Vertical = {
+                    config = {
+                        constraints = {
+                            { Length = 3 },
+                            { Min    = 1 },
+                            { Length = 3 },
+                        },
+                    },
+                    splits = {
+                        'SortAndFilter',
+                        'Table',
+                        'InputAndLogs',
+                    },
+                },
+            },
+            'HelpMenu',
+        },
+    },
+}
+
+-- The layout without help menu and selection panel
+--
+-- Type: [Layout](https://xplr.dev/en/layout)
+xplr.config.layouts.builtin.no_help_no_selection = {
+    Vertical = {
+        config = {
+            constraints = {
+                { Length = 3 },
+                { Min    = 1 },
+                { Length = 3 },
+            },
+        },
+        splits = {
+            'SortAndFilter',
+            'Table',
+            'InputAndLogs',
+        },
+    },
+}
+
+-- This is where you can define custom layouts
+--
+-- Type: mapping of the following key-value pairs:
+--
+-- * key: string
+-- * value: [Layout](https://xplr.dev/en/layout)
+--
+-- Example:
+--
+-- ```lua
+-- xplr.config.layouts.custom.example = 'Nothing' -- Show a blank screen
+-- xplr.config.general.initial_layout = 'example' -- Load the example layout
+-- ```
+xplr.config.layouts.custom = {}
+-- }}}
+
+-- {{{ Functions
 -- ## Function ----------------------------------------------------------------
 --
 -- While `xplr.config` defines all the static parts of the configuration,
@@ -2364,7 +2249,7 @@ xplr.config.modes.custom = {}
 -- As always, `xplr.fn.builtin` is where the built-in functions are defined
 -- that can be overwritten.
 
--- Tries to auto complete the path in the input buffer
+-- {{{ Autocomplete path
 xplr.fn.builtin.try_complete_path = function(m)
     if not m.input_buffer then
         return
@@ -2419,23 +2304,11 @@ xplr.fn.builtin.try_complete_path = function(m)
         }
     end
 end
+-- }}}
 
--- Renders the first column in the table
-xplr.fn.builtin.fmt_general_table_row_cols_0 = function(m)
-    local r = ''
-    if m.is_before_focus then
-        r = r .. ' -'
-    else
-        r = r .. '    '
-    end
-
-    r = r .. m.relative_index .. '│' .. m.index
-
-    return r
-end
-
--- Renders the second column in the table
-xplr.fn.builtin.fmt_general_table_row_cols_1 = function(m)
+-- {{{ Column renderers
+-- {{{ 1st: File
+xplr.fn.builtin.fmt_general_table_col_file = function(m)
     local r = m.tree .. m.prefix
 
     if m.meta.icon == nil then
@@ -2468,40 +2341,50 @@ xplr.fn.builtin.fmt_general_table_row_cols_1 = function(m)
 
     return r
 end
+-- }}}
 
--- Renders the third column in the table
-xplr.fn.builtin.fmt_general_table_row_cols_2 = function(m)
-    local no_color = os.getenv('NO_COLOR')
+-- {{{ 2nd~1: Size (size)
+xplr.fn.builtin.fmt_general_table_col_size_1 = function(m)
+    return m.is_dir and '' or string.lower(m.human_size):gsub('%s%a+', '')
+end
+-- }}}
 
-    local function green(x)
-        if no_color == nil then
-            return '\x1b[32m' .. x .. '\x1b[0m'
-        else
-            return x
-        end
+-- {{{ 2nd~2: Size (unit)
+xplr.fn.builtin.fmt_general_table_col_size_2 = function(m)
+    if m.is_dir then
+        return ''
     end
 
-    local function yellow(x)
-        if no_color == nil then
-            return '\x1b[33m' .. x .. '\x1b[0m'
-        else
-            return x
-        end
+    local unit = string.lower(m.human_size):gsub('%d+%s', ''):gsub('%d+%.', '')
+    if string.len(unit) == 2 then unit = string.sub(unit, 1, 1) end
+
+    if unit == 'b' then
+        unit = color(unit, 4)
+    elseif unit == 'k' then
+        unit = color(unit, 6)
+    elseif unit == 'm' then
+        unit = color(unit, 2)
+    else
+        unit = color(unit, 1)
     end
 
-    local function red(x)
-        if no_color == nil then
-            return '\x1b[31m' .. x .. '\x1b[0m'
-        else
-            return x
-        end
-    end
+    return bold(unit)
+end
+-- }}}
 
-    local function bit(x, color, cond)
+-- {{{ 3rd: Modification date
+xplr.fn.builtin.fmt_general_table_col_modified = function(m)
+    return tostring(os.date('%d/%m/%Y %R', m.last_modified / 1000000000))
+end
+-- }}}
+
+-- {{{ 4th: Permissions
+xplr.fn.builtin.fmt_general_table_col_perms = function(m)
+    local function bit(x, col, cond)
         if cond then
-            return color(x)
+            return color(x,   col)
         else
-            return color('-')
+            return color('-', col)
         end
     end
 
@@ -2509,62 +2392,66 @@ xplr.fn.builtin.fmt_general_table_row_cols_2 = function(m)
 
     local r = ''
 
-    r = r .. bit('r', green, p.user_read)
-    r = r .. bit('w', yellow, p.user_write)
+    r = r .. bit('r', 2, p.user_read)
+    r = r .. bit('w', 3, p.user_write)
 
     if p.user_execute == false and p.setuid == false then
-        r = r .. bit('-', red, p.user_execute)
+        r = r .. bit('-', 1, p.user_execute)
     elseif p.user_execute == true and p.setuid == false then
-        r = r .. bit('x', red, p.user_execute)
+        r = r .. bit('x', 1, p.user_execute)
     elseif p.user_execute == false and p.setuid == true then
-        r = r .. bit('S', red, p.user_execute)
+        r = r .. bit('S', 1, p.user_execute)
     else
-        r = r .. bit('s', red, p.user_execute)
+        r = r .. bit('s', 1, p.user_execute)
     end
 
-    r = r .. bit('r', green, p.group_read)
-    r = r .. bit('w', yellow, p.group_write)
+    r = r .. bit('r', 2, p.group_read)
+    r = r .. bit('w', 3, p.group_write)
 
     if p.group_execute == false and p.setuid == false then
-        r = r .. bit('-', red, p.group_execute)
+        r = r .. bit('-', 1, p.group_execute)
     elseif p.group_execute == true and p.setuid == false then
-        r = r .. bit('x', red, p.group_execute)
+        r = r .. bit('x', 1, p.group_execute)
     elseif p.group_execute == false and p.setuid == true then
-        r = r .. bit('S', red, p.group_execute)
+        r = r .. bit('S', 1, p.group_execute)
     else
-        r = r .. bit('s', red, p.group_execute)
+        r = r .. bit('s', 1, p.group_execute)
     end
 
-    r = r .. bit('r', green, p.other_read)
-    r = r .. bit('w', yellow, p.other_write)
+    r = r .. bit('r', 2, p.other_read)
+    r = r .. bit('w', 3, p.other_write)
 
     if p.other_execute == false and p.setuid == false then
-        r = r .. bit('-', red, p.other_execute)
+        r = r .. bit('-', 1, p.other_execute)
     elseif p.other_execute == true and p.setuid == false then
-        r = r .. bit('x', red, p.other_execute)
+        r = r .. bit('x', 1, p.other_execute)
     elseif p.other_execute == false and p.setuid == true then
-        r = r .. bit('T', red, p.other_execute)
+        r = r .. bit('T', 1, p.other_execute)
     else
-        r = r .. bit('t', red, p.other_execute)
+        r = r .. bit('t', 1, p.other_execute)
     end
 
     return r
 end
+-- }}}
 
--- Renders the fourth column in the table
-xplr.fn.builtin.fmt_general_table_row_cols_3 = function(m)
-    if not m.is_dir then
-        return string.lower(m.human_size)
-    else
+-- {{{ 5th: MIME essence
+xplr.fn.builtin.fmt_general_table_col_mime_essence = function(m)
+    if m.is_dir or m.mime_essence == '' then
         return ''
     end
-end
 
--- Renders the fifth column in the table
-xplr.fn.builtin.fmt_general_table_row_cols_4 = function(m)
-    return tostring(os.date('%d/%m/%Y:%u - %R', m.last_modified / 1000000000))
-end
+    local mime = m.mime_essence
 
+    local l = string.match(mime, '.*/'):gsub('/', '')
+    local r = string.match(mime, '/.*'):gsub('/', '')
+
+    return bold(color(l, 3)) .. bold(color('/', 4)) .. r
+end
+-- }}}
+-- }}}
+
+-- {{{ Custom functions
 -- This is where the custom functions can be added.
 --
 -- There is currently no restriction on what kind of functions can be defined
@@ -2575,9 +2462,10 @@ end
 xplr.fn.custom = {}
 -- }}}
 -- }}}
+-- }}}
 
--- {{{ plugins
--- {{{ load xpm
+-- {{{ Plugins
+-- {{{ Load XPM
 local home = os.getenv('HOME')
 local xpm_path = home .. '/.local/share/xplr/dtomvan/xpm.xplr'
 local xpm_url = 'https://github.com/dtomvan/xpm.xplr'
@@ -2599,34 +2487,74 @@ os.execute(
 )
 -- }}}
 
--- {{{ load plugins
+-- {{{ Load plugins
 require('xpm').setup({
     plugins = {
-        -- xpm self management
+        -- XPM self management
         'dtomvan/xpm.xplr',
 
-        -- plugins
-        { name = 'dtomvan/extra-icons.xplr' },
-        { name = 'igorepst/context-switch.xplr' },
-        { name = 'prncss-xyz/icons.xplr' },
+        -- Plugins
+        { name = 'dtomvan/extra-icons.xplr'      },
+        { name = 'igorepst/context-switch.xplr'  },
+        { name = 'prncss-xyz/icons.xplr'         },
         { name = 'sayanarijit/command-mode.xplr' },
-        { name = 'sayanarijit/dragon.xplr' },
-        { name = 'sayanarijit/dual-pane.xplr' },
-        { name = 'sayanarijit/fzf.xplr' },
-        { name = 'sayanarijit/map.xplr' },
+        { name = 'sayanarijit/dragon.xplr'       },
+        { name = 'sayanarijit/dual-pane.xplr'    },
+        { name = 'sayanarijit/fzf.xplr'          },
+        { name = 'sayanarijit/map.xplr'          },
         { name = 'sayanarijit/offline-docs.xplr' },
-        { name = 'sayanarijit/registers.xplr' },
-        { name = 'sayanarijit/type-to-nav.xplr' },
-        { name = 'sayanarijit/trash-cli.xplr' },
-        { name = 'sayanarijit/xclip.xplr' },
-        { name= 'sayanarijit/zoxide.xplr' },
+        { name = 'sayanarijit/registers.xplr'    },
+        { name = 'sayanarijit/type-to-nav.xplr'  },
+        { name = 'sayanarijit/trash-cli.xplr'    },
+        { name = 'sayanarijit/xclip.xplr'        },
+        { name = 'sayanarijit/zoxide.xplr'       },
     },
     auto_install = true,
     auto_cleanup = true,
 })
 -- }}}
+-- }}}
 
--- {{{ plugin config
+-- {{{ Post-plugin config
+-- {{{ Node types
+xplr.config.node_types.directory.style = {
+    fg = colors.blue,
+    add_modifiers = { 'Bold' },
+}
 
+xplr.config.node_types.symlink.style = {
+    fg = colors.teal,
+    add_modifiers = { 'Bold' },
+}
+
+xplr.config.node_types.mime_essence = {
+    audio = {
+        ['*'] = { meta = { icon = color('', 3) } },
+    },
+    video = {
+        ['*'] = { meta = { icon = color('ﳜ', 5) } },
+    },
+    image = {
+        ['*'] = { meta = { icon = color('', 5) } },
+    },
+    application = {
+        -- application/zip
+        zip = { meta = { icon = color('', 1) } },
+    },
+    text = {
+        ['*'] = { meta = { icon = '' } },
+    },
+}
+
+xplr.config.node_types.extension = {}
+
+xplr.config.node_types.special['code' ] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['desk' ] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['doc'  ] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['dl'   ] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['mus'  ] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['notes'] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['pic'  ] = { meta = { icon = '' }, style = { fg = colors.blue } }
+xplr.config.node_types.special['vid'  ] = { meta = { icon = '' }, style = { fg = colors.blue } }
 -- }}}
 -- }}}
