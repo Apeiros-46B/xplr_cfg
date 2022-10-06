@@ -2545,7 +2545,7 @@ xplr.config.node_types.symlink.style   = { fg = colors.teal, add_modifiers = { '
 xplr.config.node_types.mime_essence = {
     application = {
         zip   = { meta = { icon = apply_fg('', colors.red   ) } },
-        pdf   = { meta = { icon = apply_fg('', colors.red   ) } },
+        pdf   = { meta = { icon = apply_fg('', colors.red   ) } },
     },
     audio = {
         ['*'] = { meta = { icon = apply_fg('', colors.yellow) } },
